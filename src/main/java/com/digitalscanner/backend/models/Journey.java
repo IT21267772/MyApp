@@ -21,7 +21,7 @@ public class Journey {
     private LocalDateTime endTime;
     private String busId;
     private String busType;
-    private Integer route;
+    private String route;
     private String status = "ongoing";
     private Double distance;
     private Double charge = 0.0;
