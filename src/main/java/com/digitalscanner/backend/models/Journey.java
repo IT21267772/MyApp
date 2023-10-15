@@ -22,6 +22,7 @@ public class Journey {
     private String busId;
     private String busType;
     private String route;
+    private String routeNo;
     private String status = "ongoing";
     private Double distance;
     private Double charge = 0.0;
