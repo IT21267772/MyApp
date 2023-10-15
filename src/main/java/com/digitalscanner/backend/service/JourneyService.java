@@ -205,8 +205,10 @@ public class JourneyService {
 
                     Map<String, Object> routeCount = new HashMap<>();
                     routeCount.put("routeNo", routeNo);
-                    routeCount.put("start", route.split("-")[0].trim());
-                    routeCount.put("end", route.split("-")[1].trim());
+                    if(route != null) {
+                        routeCount.put("start", route.split("-")[0].trim());
+                        routeCount.put("end", route.split("-")[1].trim());
+                    }
                     routeCount.put("route", route);
                     routeCount.put("count", journeyRepository.countByRouteAndStatus(route, "ongoing"));
 
@@ -239,8 +241,10 @@ public class JourneyService {
                     Map<String, Object> busCount = new HashMap<>();
                     busCount.put("busId", busId);
                     busCount.put("routeNo", routeNo);
-                    busCount.put("start", route.split("-")[0].trim());
-                    busCount.put("end", route.split("-")[1].trim());
+                    if(route != null) {
+                        busCount.put("start", route.split("-")[0].trim());
+                        busCount.put("end", route.split("-")[1].trim());
+                    }
                     busCount.put("route", route);
                     busCount.put("seats", busService.getSeatCount(busId));
                     busCount.put("count", journeyRepository.countByBusIdAndStatus(busId, "ongoing"));
