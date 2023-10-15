@@ -40,6 +40,11 @@ public class JourneyController {
         return journeyService.getOngoingJourney(userId);
     }
 
+    @GetMapping("/ongoing/all")
+    public ResponseEntity<List<Journey>> getAllOngoingJourneys() {
+        return journeyService.getAllOngoingJourneys();
+    }
+
     @PostMapping
     public ResponseEntity<Journey> addJourney(@RequestBody Journey journey) {
         return journeyService.addJourney(journey);

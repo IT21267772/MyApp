@@ -17,6 +17,5 @@ public class User {
     private String id;
     private String firstName;
     private String lastName;
-//    @Min(value = -1000)
     private Double balance = 0.0;
 }

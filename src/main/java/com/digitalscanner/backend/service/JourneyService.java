@@ -76,6 +76,15 @@ public class JourneyService {
         }
     }
 
+    public ResponseEntity<List<Journey>> getAllOngoingJourneys() {
+        List<Journey> journeys = journeyRepository.findByStatus("ongoing");
+        if (journeys.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(journeys, HttpStatus.OK);
+        }
+    }
+
     public ResponseEntity<Journey> updateJourney(String id, Journey journey) {
 
         Optional<Journey> journeyData = journeyRepository.findById(id);

@@ -10,4 +10,6 @@ public interface JourneyRepository extends MongoRepository<Journey, String> {
     List<Journey> findByUser(String userId);
 
     List<Journey> findByUserAndStatus(String userId, String status);
+
+    List<Journey> findByStatus(String status);
 }
