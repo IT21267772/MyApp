@@ -27,6 +27,9 @@ public class JourneyService {
     @Autowired
     private FareRepository fareRepository;
 
+    @Autowired
+    private UserService userService;
+
     @Value("${google.maps.api.key}")
     private String googleMapsApiKey;
 
@@ -88,8 +91,9 @@ public class JourneyService {
             journeyToUpdate.setStatus("completed");
             journeyToUpdate.setDistance(calculateDistance(journeyToUpdate.getStart(), journeyToUpdate.getEnd()));
             if(journeyToUpdate.getBusType() != null) {
-                journeyToUpdate.setCharge(calculateFare(journeyToUpdate.getBusType(), journeyToUpdate.getDistance()));
+                journeyToUpdate.setCharge(Math.round(calculateFare(journeyToUpdate.getBusType(), journeyToUpdate.getDistance()) * 100.0) / 100.0);
             }
+            userService.updateBalance(journeyToUpdate.getUser(), journeyToUpdate.getCharge());
             return new ResponseEntity<>(journeyRepository.save(journeyToUpdate), HttpStatus.OK);
         }
         else {
