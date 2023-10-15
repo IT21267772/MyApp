@@ -12,4 +12,8 @@ public interface JourneyRepository extends MongoRepository<Journey, String> {
     List<Journey> findByUserAndStatus(String userId, String status);
 
     List<Journey> findByStatus(String status);
+
+    Long countByRouteAndStatus(String route, String status);
+
+    Long countByBusIdAndStatus(String route, String status);
 }

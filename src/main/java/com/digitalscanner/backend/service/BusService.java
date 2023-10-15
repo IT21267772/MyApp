@@ -26,4 +26,15 @@ public class BusService {
             throw new ResourceNotFoundException("Bus not found with id: " + id);
         }
     }
+
+    public Integer getSeatCount(String id) {
+        Optional<Bus> bus = busRepository.findById(id);
+
+        if(bus.isPresent()) {
+            return bus.get().getNumOfSeats();
+        }
+        else {
+            throw new ResourceNotFoundException("Bus not found with id: " + id);
+        }
+    }
 }

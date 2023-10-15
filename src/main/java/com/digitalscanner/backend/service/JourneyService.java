@@ -16,8 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.time.Month;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class JourneyService {
@@ -29,6 +30,9 @@ public class JourneyService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private BusService busService;
 
     @Value("${google.maps.api.key}")
     private String googleMapsApiKey;
@@ -184,4 +188,90 @@ public class JourneyService {
             throw new ResourceNotFoundException("Fare not found for " + busType);
         }
     }
+
+    public List<Map<String, Object>> countOngoingJourneysByRoute() {
+        List<Journey> journeys = journeyRepository.findAll();
+        Set<String> uniqueRoutes = new HashSet<>();
+        List<Map<String, Object>> routeCounts = new ArrayList<>();
+
+        for (Journey journey : journeys) {
+            if ("ongoing".equals(journey.getStatus())) {
+                String routeNo = journey.getRouteNo();
+                String route = journey.getRoute();
+
+                // Check if routeNo is already in the set, indicating a duplicate
+                if (!uniqueRoutes.contains(route)) {
+                    uniqueRoutes.add(route);
+
+                    Map<String, Object> routeCount = new HashMap<>();
+                    routeCount.put("routeNo", routeNo);
+                    routeCount.put("start", route.split("-")[0].trim());
+                    routeCount.put("end", route.split("-")[1].trim());
+                    routeCount.put("route", route);
+                    routeCount.put("count", journeyRepository.countByRouteAndStatus(route, "ongoing"));
+
+                    routeCounts.add(routeCount);
+                }
+            }
+        }
+
+        routeCounts.sort(Comparator.comparing(m -> (Long) m.get("count"), Comparator.reverseOrder()));
+
+        return routeCounts;
+    }
+
+
+    public List<Map<String, Object>> countOngoingJourneysByBus() {
+        List<Journey> journeys = journeyRepository.findAll();
+        Set<String> uniqueBuses = new HashSet<>();
+        List<Map<String, Object>> passengerCounts = new ArrayList<>();
+
+        for (Journey journey : journeys) {
+            if ("ongoing".equals(journey.getStatus())) {
+                String busId = journey.getBusId();
+                String routeNo = journey.getRouteNo();
+                String route = journey.getRoute();
+
+                // Check if routeNo is already in the set, indicating a duplicate
+                if (!uniqueBuses.contains(busId)) {
+                    uniqueBuses.add(busId);
+
+                    Map<String, Object> busCount = new HashMap<>();
+                    busCount.put("busId", busId);
+                    busCount.put("routeNo", routeNo);
+                    busCount.put("start", route.split("-")[0].trim());
+                    busCount.put("end", route.split("-")[1].trim());
+                    busCount.put("route", route);
+                    busCount.put("seats", busService.getSeatCount(busId));
+                    busCount.put("count", journeyRepository.countByBusIdAndStatus(busId, "ongoing"));
+
+                    passengerCounts.add(busCount);
+                }
+            }
+        }
+
+        // Sort the list in descending order based on the "count" field
+        passengerCounts.sort(Comparator.comparing(m -> (Long) m.get("count"), Comparator.reverseOrder()));
+
+        return passengerCounts;
+    }
+
+    public Map<Month, Double> getIncomeByMonth(String year) {
+        List<Journey> journeys = journeyRepository.findAll(); // Retrieve all journeys
+
+        // Filter journeys for the specified year
+        List<Journey> journeysForYear = journeys.stream()
+                .filter(journey -> journey.getStartTime().getYear() == Integer.parseInt(year))
+                .collect(Collectors.toList());
+
+        // Group journeys by month and sum the charges for each month
+        Map<Month, Double> incomeByMonth = journeysForYear.stream()
+                .collect(Collectors.groupingBy(
+                        journey -> journey.getStartTime().getMonth(),
+                        Collectors.summingDouble(Journey::getCharge)
+                ));
+
+        return incomeByMonth;
+    }
+
 }
